@@ -9,7 +9,6 @@ from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 from typing import Optional
 
-from rag_pipeline import run_rag
 from database import (
     init_db,
     create_document,
@@ -26,14 +25,6 @@ from database import (
     add_document_to_conversation,
     get_document_ids_for_conversation,
 )
-from document_processor import (
-    compute_file_hash,
-    process_pdf,
-    delete_from_chromadb,
-    PAPERS_DIR,
-    MAX_FILE_SIZE,
-)
-
 
 # ============================================================
 # PATHS
@@ -132,6 +123,10 @@ def health_check():
 @app.post("/ask")
 def ask_question(request: QuestionRequest):
 
+    # Lazy import to prevent heavy ML dependencies
+    # from loading during application startup
+    from rag_pipeline import run_rag
+
     # Remove unnecessary spaces
     question = request.question.strip()
 
@@ -148,6 +143,7 @@ def ask_question(request: QuestionRequest):
         document_ids = get_document_ids_for_conversation(
             request.conversation_id
         )
+
         # If conversation has no documents, search all
         if not document_ids:
             document_ids = None
@@ -198,6 +194,15 @@ async def upload_document(
     conversation_id: Optional[str] = Form(None)
 ):
 
+    # Lazy import to prevent heavy ML dependencies
+    # from loading during application startup
+    from document_processor import (
+        compute_file_hash,
+        process_pdf,
+        PAPERS_DIR,
+        MAX_FILE_SIZE,
+    )
+
     # --------------------------------------------------------
     # Validate file type
     # --------------------------------------------------------
@@ -213,6 +218,7 @@ async def upload_document(
     # Validate content type
     if file.content_type and \
        file.content_type != "application/pdf":
+
         # Some browsers may not send correct content type
         # so only reject if explicitly wrong
         if "pdf" not in file.content_type.lower():
@@ -307,7 +313,9 @@ async def upload_document(
     # --------------------------------------------------------
 
     result = process_pdf(
-        file_path, doc["id"], file.filename
+        file_path,
+        doc["id"],
+        file.filename
     )
 
     # Refresh document data
@@ -323,7 +331,10 @@ async def upload_document(
         return {
             "document": doc,
             "duplicate": False,
-            "error": result.get("error", "Processing failed.")
+            "error": result.get(
+                "error",
+                "Processing failed."
+            )
         }
 
 
@@ -344,18 +355,28 @@ def get_document_info(doc_id: str):
     doc = get_document(doc_id)
 
     if not doc:
-        return {"error": "Document not found."}
+        return {
+            "error": "Document not found."
+        }
 
-    return {"document": doc}
+    return {
+        "document": doc
+    }
 
 
 @app.delete("/api/documents/{doc_id}")
 def delete_document_endpoint(doc_id: str):
 
+    # Lazy import to prevent heavy ML dependencies
+    # from loading during application startup
+    from document_processor import delete_from_chromadb
+
     doc = get_document(doc_id)
 
     if not doc:
-        return {"error": "Document not found."}
+        return {
+            "error": "Document not found."
+        }
 
     # Delete from ChromaDB
     delete_from_chromadb(doc_id)
@@ -363,8 +384,10 @@ def delete_document_endpoint(doc_id: str):
     # Delete file from disk
     try:
         file_path = Path(doc["file_path"])
+
         if file_path.exists():
             file_path.unlink()
+
     except Exception as e:
         print(f"Error deleting file: {e}")
 
@@ -385,8 +408,12 @@ def delete_document_endpoint(doc_id: str):
 def create_conversation_endpoint(
     data: ConversationCreate
 ):
+
     conv = create_conversation(data.title)
-    return {"conversation": conv}
+
+    return {
+        "conversation": conv
+    }
 
 
 @app.get("/api/conversations")
@@ -402,9 +429,13 @@ def get_conversation_endpoint(conv_id: str):
     conv = get_conversation(conv_id)
 
     if not conv:
-        return {"error": "Conversation not found."}
+        return {
+            "error": "Conversation not found."
+        }
 
-    return {"conversation": conv}
+    return {
+        "conversation": conv
+    }
 
 
 @app.delete("/api/conversations/{conv_id}")
@@ -413,7 +444,9 @@ def delete_conversation_endpoint(conv_id: str):
     conv = get_conversation(conv_id)
 
     if not conv:
-        return {"error": "Conversation not found."}
+        return {
+            "error": "Conversation not found."
+        }
 
     db_delete_conversation(conv_id)
 
@@ -428,14 +461,22 @@ def update_conversation_endpoint(
     conv_id: str,
     data: ConversationUpdate
 ):
+
     conv = get_conversation(conv_id)
 
     if not conv:
-        return {"error": "Conversation not found."}
+        return {
+            "error": "Conversation not found."
+        }
 
-    update_conversation_title(conv_id, data.title)
+    update_conversation_title(
+        conv_id,
+        data.title
+    )
 
-    return {"message": "Conversation updated."}
+    return {
+        "message": "Conversation updated."
+    }
 
 
 # ============================================================
@@ -447,17 +488,25 @@ def add_doc_to_conversation(
     conv_id: str,
     document_id: str = Form(...)
 ):
+
     conv = get_conversation(conv_id)
 
     if not conv:
-        return {"error": "Conversation not found."}
+        return {
+            "error": "Conversation not found."
+        }
 
     doc = get_document(document_id)
 
     if not doc:
-        return {"error": "Document not found."}
+        return {
+            "error": "Document not found."
+        }
 
-    add_document_to_conversation(conv_id, document_id)
+    add_document_to_conversation(
+        conv_id,
+        document_id
+    )
 
     return {
         "message": "Document associated with conversation."
