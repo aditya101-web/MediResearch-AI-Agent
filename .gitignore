@@ -1,0 +1,38 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+dist/
+build/
+*.egg
+
+# Virtual environments
+.venv/
+venv/
+env/
+
+# Data (local state)
+data/chroma_db/
+data/papers/
+data/processed/
+data/*.db
+backend/data/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+backend/.data/
+backend/.data/
+
+.env
+backend/.data/
+backend/..data/
