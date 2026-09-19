@@ -10,7 +10,11 @@ from datetime import datetime, timezone
 # ============================================================
 
 BASE_DIR = Path(__file__).resolve().parent.parent
-DB_PATH = str(BASE_DIR / "data" / "mediresearch.db")
+
+DATA_DIR = BASE_DIR / "data"
+DATA_DIR.mkdir(parents=True, exist_ok=True)
+
+DB_PATH = str(DATA_DIR / "mediresearch.db")
 
 
 # ============================================================
