@@ -1,78 +1,86 @@
-    # MediResearch-AI
+# 🧠 MediResearch AI
 
-AI-powered medical research assistant that uses Retrieval-Augmented Generation (RAG) to answer questions from uploaded medical research PDFs.
+### AI-Powered Medical Research Assistant using RAG
 
-## Overview
+MediResearch AI is an AI-powered research assistant designed to help users explore and understand medical research papers more efficiently.
 
-MediResearch-AI allows users to upload medical research papers and ask questions about their content.
+Users can upload medical research PDFs and ask questions about their contents. Instead of relying only on the general knowledge of an LLM, MediResearch AI retrieves relevant information from the uploaded documents and uses that evidence to generate grounded answers.
 
-The system extracts text from PDFs, splits the content into meaningful chunks, converts the chunks into vector embeddings, stores them in ChromaDB, retrieves relevant research passages, and uses an LLM to generate answers with source and page citations.
+The system also provides source references, allowing users to trace an answer back to the relevant document, page, and retrieved section.
 
-> This project is designed for medical research and literature exploration. It is not intended for medical diagnosis or treatment decisions.
+> ⚠️ **Disclaimer:** MediResearch AI is designed for research and educational purposes. It is not intended to provide medical diagnosis, treatment decisions, or professional medical advice.
 
-## Architecture
+---
 
-PDF Upload
-→ PDF Text Extraction
-→ Text Cleaning
-→ Chunking
-→ Sentence Transformer Embeddings
-→ ChromaDB
-→ Hybrid Retrieval
-→ LLM
-→ Answer + Sources
+## 🚀 What Problem Does It Solve?
 
-## Features
+Medical research papers can contain dozens or hundreds of pages, making it time-consuming to locate specific information.
 
-- Upload and process medical research PDFs
-- PDF text extraction using pypdf
-- Text cleaning and chunking
-- Semantic embeddings using Sentence Transformers
-- Persistent vector storage with ChromaDB
-- Hybrid retrieval using semantic, keyword, and phrase matching
-- AI-generated answers using Ollama
-- Source and page-level citations
-- FastAPI backend
-- Web-based frontend
-- Persistent conversation/document data
+For example, a researcher may upload a paper and ask:
 
-## Tech Stack
+> **"What are the major causes of cancer mentioned in this paper?"**
 
-- Python
-- FastAPI
-- ChromaDB
-- Sentence Transformers
-- pypdf
-- Ollama
-- SQLite
-- HTML
-- CSS
-- JavaScript
+Instead of manually searching through the entire document, MediResearch AI:
 
-## Project Structure
+1. Processes the uploaded research paper
+2. Extracts and cleans the text
+3. Divides the document into meaningful chunks
+4. Converts those chunks into semantic embeddings
+5. Stores the embeddings in ChromaDB
+6. Searches for the most relevant research passages
+7. Provides the retrieved context to the LLM
+8. Generates a concise answer
+9. Displays the sources used to generate the answer
+
+This creates a **document-grounded research workflow** rather than a generic chatbot.
+
+---
+
+# 🔍 How MediResearch AI Works
 
 ```text
-MediResearch-AI/
-│
-├── backend/
-│   ├── api.py
-│   ├── chunker.py
-│   ├── database.py
-│   ├── document_processor.py
-│   ├── embeddings.py
-│   ├── llm.py
-│   ├── pdf_processor.py
-│   ├── rag_pipeline.py
-│   ├── retriever.py
-│   ├── text_processor.py
-│   └── vector_store.py
-│
-├── frontend/
-│   ├── assets/
-│   ├── css/
-│   ├── js/
-│   └── index.html
-│
-├── requirements.txt
-├── .gitignore
-└── README.md
+                    USER
+                     │
+                     ▼
+              Upload Research PDF
+                     │
+                     ▼
+             PDF Text Extraction
+                     │
+                     ▼
+               Text Cleaning
+                     │
+                     ▼
+             Intelligent Chunking
+                     │
+                     ▼
+        Sentence Transformer Model
+             (384-D Embeddings)
+                     │
+                     ▼
+                 ChromaDB
+              Vector Storage
+                     │
+                     ▼
+              User Question
+                     │
+                     ▼
+           Hybrid Retrieval
+        ┌────────────┼────────────┐
+        ▼            ▼            ▼
+     Semantic      Keyword      Phrase
+     Search        Matching     Matching
+        └────────────┼────────────┘
+                     ▼
+             Relevant Context
+                     │
+                     ▼
+              Llama 3.2
+               via Ollama
+                     │
+                     ▼
+              Grounded Answer
+                     │
+              ┌──────┴──────┐
+              ▼             ▼
+           Answer         Sources
